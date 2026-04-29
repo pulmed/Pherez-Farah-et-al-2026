@@ -1,0 +1,63 @@
+# Environment: main (conda + renv)
+name: pherez-farah-r_env
+
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  # Core R runtime
+  - r-base=4.5.1
+
+  # Build tools
+  - gcc
+  - gxx
+  - make
+  - cmake
+  - pkg-config
+  - git
+
+  # Core system libraries
+  - openssl
+  - curl
+  - libcurl
+  - libxml2
+  - zlib
+  - xz
+  - icu
+  - expat
+
+  # Reporting / document support
+  - pandoc
+
+  # Graphics / rendering support
+  - libpng
+  - fontconfig
+  - freetype
+  - cairo
+  - harfbuzz
+  - fribidi
+  - libjpeg-turbo
+  - libtiff
+  - libmagic
+  - imagemagick
+
+  # Scientific / storage dependencies
+  - hdf5
+  - glpk
+  - udunits2
+
+  # Spatial / geospatial dependencies
+  - abseil-cpp
+  - gflags
+  - glog
+  - geos
+  - proj
+  - gdal
+
+  # X11 libraries sometimes needed by compiled R packages
+  - xorg-libx11
+  - xorg-libxext
+  - xorg-libxrender
+  - xorg-libsm
+  - xorg-libice

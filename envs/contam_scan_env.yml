@@ -1,0 +1,11 @@
+# Environment: contam-scan (conda)
+name: contam_scan
+
+channels:
+  - bioconda
+  - conda-forge
+
+dependencies:
+  - samtools=1.18
+  - bowtie2=2.5.1
+  - coreutils
