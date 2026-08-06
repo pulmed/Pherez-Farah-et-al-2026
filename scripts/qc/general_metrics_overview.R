@@ -1,16 +1,19 @@
 #!/usr/bin/env Rscript
-# ==============================================================================
-# Script: 03_generate_general_metrics_overview.R
+# ------------------------------------------------------------------------------
+# Script: scripts/qc/general_metrics_overview.R
+# Original file: SCRIPT 20250725 GENERAL METRICS.R
 # Authors: Alfredo Pherez-Farah (ORCID: 0000-0003-2213-3405); Willem de Koning (ORCID: 0000-0002-4594-8423)
 # Purpose: Generate general overview metrics, plots, marker summaries, heatmaps, and selected signature visualizations.
-# Inputs: Normalized Seurat object from 02_demultiplex_normalize_and_visualize_seurat.R.
-# Outputs: PNG plots and tabular summaries.
+# Inputs: Canonical analysis-ready Seurat object.
+# Outputs: PNG plots, CSV summaries, and XLSX marker/statistics tables.
+# Assay/layer input: RNA data for plots/signatures, SCT data for marker testing, UMAP reduction, final_clusters and condition metadata.
 # Dependencies: Seurat, dplyr, tidyr, ggplot2, scales, openxlsx, pheatmap.
 # Environment: Main analysis environment (conda + renv).
 # Notes:
-# - Edit the configuration section before running.
-# - RNA log-normalization is expected to have been performed in script 02.
-# ==============================================================================
+# - RNA log-normalization is expected in the canonical object; the script normalizes RNA if the data layer is empty.
+# ------------------------------------------------------------------------------
+
+if (file.exists("renv/activate.R")) source("renv/activate.R")
 
 suppressPackageStartupMessages({
   library(Seurat)
@@ -23,13 +26,14 @@ suppressPackageStartupMessages({
 })
 
 set.seed(1)
+options(future.globals.maxSize = as.numeric(Sys.getenv("FUTURE_GLOBALS_MAX_SIZE", unset = 8 * 1024^3)))
 
 # ------------------------------------------------------------------------------
-# 1. CONFIGURATION  ← EDIT THIS SECTION
+# 1. CONFIGURATION
 # ------------------------------------------------------------------------------
 
-input_file <- "path/to/combined_seurat_normalized.rds"
-output_dir <- "path/to/general_metrics_overview"
+input_file <- Sys.getenv("SEURAT_RDS", unset = "data/seurat.rds")
+output_dir <- Sys.getenv("OUTPUT_DIR", unset = file.path("output", "03_general_metrics_overview"))
 
 cluster_column <- "final_clusters"
 condition_column <- "condition"
@@ -172,6 +176,23 @@ output_dir <- make_dir(output_dir)
 seu <- readRDS(input_file)
 
 require_metadata(seu, c(cluster_column, condition_column))
+if (has_assay(seu, rna_assay)) {
+  DefaultAssay(seu) <- rna_assay
+  rna_data_layer <- tryCatch(
+    GetAssayData(seu, assay = rna_assay, layer = "data"),
+    error = function(e) NULL
+  )
+  if (is.null(rna_data_layer) || ncol(rna_data_layer) == 0) {
+    message("RNA data layer missing or empty; running NormalizeData() for downstream plots.")
+    seu <- NormalizeData(
+      seu,
+      assay = rna_assay,
+      normalization.method = "LogNormalize",
+      scale.factor = 10000,
+      verbose = FALSE
+    )
+  }
+}
 
 if (!umap_reduction %in% Reductions(seu)) {
   stop("UMAP reduction not found: ", umap_reduction)
@@ -558,6 +579,11 @@ if (run_top_markers && has_assay(seu, sct_assay)) {
   marker_dir <- make_dir(file.path(output_dir, "top_cluster_markers"))
 
   DefaultAssay(seu) <- sct_assay
+  if (sct_assay == "SCT") {
+    message("Preparing SCT assay for FindMarkers() across multiple SCT models.")
+    seu <- PrepSCTFindMarkers(seu, verbose = FALSE)
+  }
+
   seu <- set_cluster_idents(seu, cluster_column)
 
   if (top_marker_cluster %in% levels(Idents(seu))) {
@@ -648,7 +674,7 @@ if (run_marker_heatmap && has_assay(seu, heatmap_assay)) {
       border_color = NA,
       fontsize_row = 7,
       fontsize_col = 10,
-      main = paste0("Selected genes across clusters – ", heatmap_assay),
+      main = paste0("Selected genes across clusters - ", heatmap_assay),
       angle_col = 45
     )
     dev.off()

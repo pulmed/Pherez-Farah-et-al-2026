@@ -1,19 +1,20 @@
 #!/usr/bin/env Rscript
-# ==============================================================================
-# Script: 02_demultiplex_normalize_and_visualize_seurat.R
+# ------------------------------------------------------------------------------
+# Script: scripts/build_object/build_analysis_seurat_object.R
+# Original file: normalization_seurat.R
 # Authors: Alfredo Pherez-Farah (ORCID: 0000-0003-2213-3405); Willem de Koning (ORCID: 0000-0002-4594-8423)
-# Purpose: Demultiplex HTOs, normalize RNA/ADT/HTO data, run clustering/UMAP, and generate QC plots.
-# Inputs: Merged multimodal Seurat object with RNA, optional ADT, and optional HTO assays.
-# Outputs: Normalized Seurat object and basic demultiplexing/visualization plots.
+# Purpose: Build the canonical analysis-ready Seurat object with raw counts, normalized layers, SCT, reductions, and required metadata.
+# Inputs: Merged multimodal Seurat object.
+# Outputs: Canonical analysis-ready Seurat object, default data/seurat.rds, plus object-building QC plots.
+# Assay/layer input: RNA counts/data, SCT data, ADT counts/data, optional HTO counts/data.
 # Dependencies: Seurat, ggplot2, scRepertoire.
 # Environment: Main analysis environment (conda + renv).
 # Notes:
-# - Edit the configuration section before running.
-# - HTO demultiplexing is only performed when an HTO assay is present.
-# - RNA log-normalization is stored in the RNA assay for reuse by downstream scripts.
-# - SCTransform is used for PCA, UMAP, and clustering.
+# - HTO demultiplexing runs only when an HTO assay is present.
 # - Batch correction is intentionally not applied because treatment may be confounded with sample.
-# ==============================================================================
+# ------------------------------------------------------------------------------
+
+if (file.exists("renv/activate.R")) source("renv/activate.R")
 
 suppressPackageStartupMessages({
   library(Seurat)
@@ -24,17 +25,17 @@ suppressPackageStartupMessages({
 set.seed(1)
 
 # ------------------------------------------------------------------------------
-# 1. CONFIGURATION  ← EDIT THIS SECTION
+# 1. CONFIGURATION
 # ------------------------------------------------------------------------------
 
 # Input merged Seurat object
-input_file <- "path/to/merged_cellranger_multi_seurat.rds"
+input_file <- Sys.getenv("MERGED_SEURAT_RDS", unset = file.path("data", "merged_cellranger_multi_seurat.rds"))
 
 # Output normalized Seurat object
-output_file <- "path/to/combined_seurat_normalized.rds"
+output_file <- Sys.getenv("SEURAT_RDS", unset = file.path("data", "seurat.rds"))
 
 # Output directory for plots
-plot_dir <- "path/to/plots"
+plot_dir <- Sys.getenv("OUTPUT_DIR", unset = file.path("output", "build_analysis_seurat_object"))
 
 # Assay names
 rna_assay <- "RNA"

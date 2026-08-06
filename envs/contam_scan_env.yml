@@ -1,4 +1,4 @@
-# Environment: contam-scan (conda)
+# Environment: contam_scan (conda)
 name: contam_scan
 
 channels:

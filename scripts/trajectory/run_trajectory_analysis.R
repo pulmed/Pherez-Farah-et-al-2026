@@ -1,16 +1,19 @@
 #!/usr/bin/env Rscript
-# ==============================================================================
-# Script: 04_run_trajectory_analysis.R
+# ------------------------------------------------------------------------------
+# Script: scripts/trajectory/run_trajectory_analysis.R
+# Original file: Trajectory.R
 # Authors: Alfredo Pherez-Farah (ORCID: 0000-0003-2213-3405); Willem de Koning (ORCID: 0000-0002-4594-8423)
-# Purpose: Run Monocle3 trajectory analysis, pseudotime visualization, branch convergence analysis, and incoming-signature summaries.
-# Inputs: Processed Seurat object with UMAP and final cluster annotations.
-# Outputs: PNG trajectory plots and CSV summary tables.
-# Dependencies: Seurat, monocle3, SeuratWrappers, igraph, Matrix, dplyr, tidyr, ggplot2, ggrepel, purrr, scales, patchwork.
+# Purpose: Run trajectory analysis and generate monocle pseudotime outputs from the annotated Seurat object.
+# Inputs: Canonical analysis-ready Seurat object with UMAP, RNA data, and final_clusters metadata.
+# Outputs: Trajectory plots, root-node summaries, pseudotime summaries, and related tables.
+# Assay/layer input: RNA data, UMAP reduction, final_clusters metadata.
+# Dependencies: Seurat, monocle3, dplyr, ggplot2, Matrix, patchwork.
 # Environment: Main analysis environment (conda + renv).
 # Notes:
-# - Edit the configuration section before running.
-# - This script uses the existing Seurat UMAP embedding for Monocle3 trajectory learning.
-# ==============================================================================
+# - Set SMOKE_TEST=1 to validate inputs without running the full trajectory workflow.
+# ------------------------------------------------------------------------------
+
+if (file.exists("renv/activate.R")) source("renv/activate.R")
 
 suppressPackageStartupMessages({
   library(Seurat)
@@ -31,11 +34,11 @@ suppressPackageStartupMessages({
 set.seed(1)
 
 # ------------------------------------------------------------------------------
-# 1. CONFIGURATION  ← EDIT THIS SECTION
+# 1. CONFIGURATION
 # ------------------------------------------------------------------------------
 
-input_file <- "path/to/combined_seurat_normalized.rds"
-output_dir <- "path/to/trajectory_analysis"
+input_file <- Sys.getenv("SEURAT_RDS", unset = "data/seurat.rds")
+output_dir <- Sys.getenv("OUTPUT_DIR", unset = file.path("output", "04_trajectory_analysis"))
 
 cluster_column <- "final_clusters"
 umap_reduction <- "umap"
@@ -258,6 +261,11 @@ require_metadata(seurat_object, cluster_column)
 
 if (!umap_reduction %in% Reductions(seurat_object)) {
   stop("UMAP reduction not found: ", umap_reduction)
+}
+
+if (identical(Sys.getenv("SMOKE_TEST"), "1")) {
+  message("SMOKE_TEST=1: input object, metadata, and UMAP reduction validated; skipping full trajectory analysis.")
+  quit(save = "no", status = 0)
 }
 
 seurat_object <- as_character_clusters(seurat_object, cluster_column)
@@ -709,7 +717,7 @@ if (run_convergence_analysis) {
       geom_smooth(method = "loess", formula = y ~ x, se = FALSE, span = 0.6) +
       facet_wrap(~branch, ncol = 2, scales = "fixed") +
       labs(
-        title = paste0(gene, " — trend toward convergence"),
+        title = paste0(gene, " - trend toward convergence"),
         subtitle = sprintf("Spearman rho: b1 = %.2f | b2 = %.2f", rho1, rho2),
         x = "Branch progress toward convergence",
         y = "log1p(CPM)"
@@ -1037,7 +1045,7 @@ if (run_incoming_signature_summary && exists("convergent_ranked") && nrow(conver
       scale_fill_manual(values = c(b1 = "#1f77b4", b2 = "#d62728"), guide = "none") +
       labs(
         title = "Incoming signature definition",
-        subtitle = "Thin lines = individual genes; thick line = branch median ± IQR",
+        subtitle = "Thin lines = individual genes; thick line = branch median +/- IQR",
         x = "Branch progress toward convergence node",
         y = "Standardized expression"
       ) +

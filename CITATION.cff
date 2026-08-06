@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+title: "Unraveling Crosstalk between T-cells and TME"
+message: "If you use this analysis repository, please cite the associated manuscript."
+type: software
+authors:
+  - family-names: Pherez-Farah
+    given-names: Alfredo
+    orcid: "https://orcid.org/0000-0003-2213-3405"
+  - family-names: de Koning
+    given-names: Willem
+    orcid: "https://orcid.org/0000-0002-4594-8423"
+license: MIT
+date-released: 2026-06-17

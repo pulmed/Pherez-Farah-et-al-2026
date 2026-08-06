@@ -1,16 +1,19 @@
 #!/usr/bin/env Rscript
-# ==============================================================================
-# Script: 01_import_cellranger_multi_to_seurat.R
+# ------------------------------------------------------------------------------
+# Script: scripts/build_object/import_cellranger_multi_to_seurat.R
+# Original file: process_seurat.R
 # Authors: Alfredo Pherez-Farah (ORCID: 0000-0003-2213-3405); Willem de Koning (ORCID: 0000-0002-4594-8423)
-# Purpose: Import Cell Ranger multi outputs into Seurat and merge samples.
-# Inputs: Cell Ranger multi output directories containing GEX, optional ADT/HTO, and optional V(D)J-T data.
-# Outputs: Merged multimodal Seurat object saved as an .rds file.
+# Purpose: Import Cell Ranger multi outputs and merge samples into a multimodal Seurat object.
+# Inputs: Cell Ranger multi output directories containing GEX, ADT/HTO, and optional V(D)J-T data.
+# Outputs: Merged multimodal Seurat object.
+# Assay/layer input: RNA counts, optional ADT counts, optional HTO counts, optional TCR metadata.
 # Dependencies: Seurat, dplyr, scRepertoire, Matrix.
 # Environment: Main analysis environment (conda + renv).
 # Notes:
-# - Samples are auto-detected from directories ending in "_multi".
-# - Users should edit the configuration section below before running.
-# ==============================================================================
+# - Override CELLRANGER_MULTI_DIR and OUTPUT_DIR as needed.
+# ------------------------------------------------------------------------------
+
+if (file.exists("renv/activate.R")) source("renv/activate.R")
 
 suppressPackageStartupMessages({
   library(Seurat)
@@ -22,7 +25,7 @@ suppressPackageStartupMessages({
 set.seed(1)
 
 # ------------------------------------------------------------------------------
-# 1. CONFIGURATION  ← EDIT THIS SECTION
+# 1. CONFIGURATION
 # ------------------------------------------------------------------------------
 
 # Root directory containing Cell Ranger multi outputs
@@ -30,12 +33,12 @@ set.seed(1)
 # base_dir/
 #   sample1_multi/
 #   sample2_multi/
-base_dir <- "path/to/cellranger_multi_outputs"
+base_dir <- Sys.getenv("CELLRANGER_MULTI_DIR", unset = file.path("output", "cellranger_multi"))
 
 # Output file
 output_file <- file.path(
-  base_dir,
-  "R_Output",
+  Sys.getenv("OUTPUT_DIR", unset = "output"),
+  "import_cellranger_multi_to_seurat",
   "merged_cellranger_multi_seurat.rds"
 )
 

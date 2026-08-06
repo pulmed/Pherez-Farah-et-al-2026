@@ -18,7 +18,7 @@ This environment is used for:
 
 ### 2. Contamination scan environment
 
-* Defined in `contam_scan_env.yaml`
+* Defined in `contam_scan_env.yml`
 * **Conda-only environment** (no renv)
 
 This environment is used for:
@@ -34,13 +34,13 @@ This environment is used for:
 
 ```bash
 conda env create -f envs/environment.yml
-conda activate pherez-farah-2026
+conda activate pherez-farah-r_env
 ```
 
 This installs:
 
 * R
-* system libraries required by R packages (e.g. Seurat dependencies)
+* system libraries required by R packages, including plotting, HDF5, and geospatial dependencies
 
 ---
 
@@ -50,10 +50,17 @@ Start R in the **repository root**, then run:
 
 ```r
 install.packages("renv")  # if not already installed
-renv::restore()
+renv::restore(lockfile = "envs/renv.lock")
 ```
 
 This installs all R packages at the exact versions used in the analysis.
+The lockfile in `envs/renv.lock` records R 4.5.1, Bioconductor 3.21, and the R packages used by the analysis. Create the conda environment first because several R packages depend on compiled system libraries that are more reliable when installed before `renv::restore()`.
+
+If R reports that the project library has a different `renv` version than the lockfile, align the local project library with:
+
+```r
+renv::restore(packages = "renv")
+```
 
 ---
 
@@ -62,7 +69,7 @@ This installs all R packages at the exact versions used in the analysis.
 Before running any analysis script:
 
 ```bash
-conda activate pherez-farah-2026
+conda activate pherez-farah-r_env
 ```
 
 Then in R:
@@ -75,8 +82,8 @@ renv::activate()
 
 ### Lockfiles
 
-* `renv.lock` → exact R package versions (source of truth for R)
-* `environment.yml` → base system + R version
+* `envs/renv.lock` → exact R package versions (source of truth for R)
+* `envs/environment.yml` → base system + R version
 
 ---
 
@@ -85,14 +92,14 @@ renv::activate()
 Environment file:
 
 ```
-envs/contam_scan_env.yaml
+envs/contam_scan_env.yml
 ```
 
 ### Setup
 
 ```bash
-conda env create -f envs/contam_scan_env.yaml
-conda activate contam-scan
+conda env create -f envs/contam_scan_env.yml
+conda activate contam_scan
 ```
 
 ---
@@ -111,7 +118,7 @@ It is **not required** for figure generation unless explicitly stated in a scrip
 | ------------------------- | ------------------------ |
 | Figure generation (1E–1G) | main (conda + renv)      |
 | R-based analysis          | main (conda + renv)      |
-| QC / contamination scan   | contam-scan (conda only) |
+| QC / contamination scan   | contam_scan (conda only) |
 
 ---
 
