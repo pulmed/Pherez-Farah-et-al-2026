@@ -13,6 +13,8 @@ Scripts are organized by analysis stage instead of by one global numeric sequenc
 
 ```text
 Pherez-Farah-et-al-2026/
+|-- .Rprofile
+|-- .gitignore
 |-- README.md
 |-- CITATION.cff
 |-- LICENSE
@@ -25,6 +27,9 @@ Pherez-Farah-et-al-2026/
 |   |-- environment.yml
 |   |-- contam_scan_env.yml
 |   `-- renv.lock
+|-- renv/
+|   |-- .gitignore
+|   `-- activate.R
 `-- scripts/
     |-- validate_repository_inputs.R
     |-- run_smoke_tests.sh
