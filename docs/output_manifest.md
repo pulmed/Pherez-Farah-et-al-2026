@@ -1,11 +1,11 @@
-| Build canonical Seurat object | `scripts/build_object/build_analysis_seurat_object.R` | merged Seurat object; RNA/ADT/HTO counts | local `data/seurat.rds`, `output/build_analysis_seurat_object/` | canonical downstream input |
-| Ensure canonical layers | `scripts/build_object/ensure_analysis_layers.R` | local `data/seurat.rds` | updated local `data/seurat.rds` | guarantees required normalized layers |# Output Manifest
+# Output Manifest
 
 This manifest lists the main analysis scripts, their expected Seurat assay/layer inputs, and their default output locations. Most scripts accept `SEURAT_RDS` and `OUTPUT_DIR` overrides.
 
 | Analysis | Script | Main input | Default output | Manuscript relevance |
 | --- | --- | --- | --- | --- |
-| Build canonical Seurat object | `scripts/build_object/build_analysis_seurat_object.R` | merged Seurat object; RNA/ADT/HTO counts | `data/seurat.rds`, `output/build_analysis_seurat_object/` | canonical downstream input |
+| Build canonical Seurat object | `scripts/build_object/build_analysis_seurat_object.R` | merged Seurat object; RNA/ADT/HTO counts | local `data/seurat.rds`, `output/build_analysis_seurat_object/` | canonical downstream input |
+| Ensure canonical layers | `scripts/build_object/ensure_analysis_layers.R` | local `data/seurat.rds` | updated local `data/seurat.rds` | guarantees required normalized layers |
 | General metrics | `scripts/qc/general_metrics_overview.R` | `RNA:data`, `SCT:data`, UMAP, metadata | `output/03_general_metrics_overview/` | QC and exploratory summaries |
 | Biotin thresholds/status | `scripts/qc/biotin_thresholds_and_status.R` | `ADT:data`, `RNA:counts`, metadata | `output/05_biotin_analysis/` | Panel 1G and treated-only biotin DGE |
 | Contamination scan | `scripts/qc/scan_contaminants_per_run.sh` | Cell Ranger BAMs, `data/contaminants.fa` | `output/contam_per_run/` | QC/provenance |

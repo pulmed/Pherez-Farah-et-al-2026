@@ -1,6 +1,4 @@
-| Build canonical object | `scripts/build_object/build_analysis_seurat_object.R` | `MERGED_SEURAT_RDS`, default `data/merged_cellranger_multi_seurat.rds` | `SEURAT_RDS`, default `data/seurat.rds` |
-| Ensure canonical layers | `scripts/build_object/ensure_analysis_layers.R` | `SEURAT_RDS`, default `data/seurat.rds` | updated object with required normalized layers || Build canonical object | `scripts/build_object/build_analysis_seurat_object.R` | `MERGED_SEURAT_RDS`, default `data/merged_cellranger_multi_seurat.rds` | `SEURAT_RDS`, default `data/seurat.rds` |
-| Ensure canonical layers | `scripts/build_object/ensure_analysis_layers.R` | `SEURAT_RDS`, default `data/seurat.rds` | updated object with required normalized layers |# Unraveling Crosstalk between T-cells and TME
+# Unraveling Crosstalk between T-cells and TME
 
 This repository contains the analysis scripts and computational environment files used in the manuscript **"Unraveling Crosstalk between T-cells and TME."**
 
@@ -125,6 +123,7 @@ Raw sequencing data were processed with Cell Ranger 9.0.1. The object-building s
 | Cell Ranger multi | `scripts/build_object/cellranger_multi.sh` | FASTQs, 10x references, feature reference CSV | Cell Ranger `*_multi` outputs |
 | Import Cell Ranger output | `scripts/build_object/import_cellranger_multi_to_seurat.R` | `CELLRANGER_MULTI_DIR`, default `output/cellranger_multi` | merged multimodal Seurat object |
 | Build canonical object | `scripts/build_object/build_analysis_seurat_object.R` | `MERGED_SEURAT_RDS`, default `data/merged_cellranger_multi_seurat.rds` | `SEURAT_RDS`, default `data/seurat.rds` |
+| Ensure canonical layers | `scripts/build_object/ensure_analysis_layers.R` | `SEURAT_RDS`, default `data/seurat.rds` | updated object with required normalized layers |
 
 The final manuscript object contains manual/iterative annotation not fully captured by these build scripts. For manuscript reproduction, use the provided/supplied annotated object as `data/seurat.rds`.
 
