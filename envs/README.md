@@ -56,6 +56,8 @@ renv::restore(lockfile = "envs/renv.lock")
 This installs all R packages at the exact versions used in the analysis.
 The lockfile in `envs/renv.lock` records R 4.5.1, Bioconductor 3.21, and the R packages used by the analysis. Create the conda environment first because several R packages depend on compiled system libraries that are more reliable when installed before `renv::restore()`.
 
+The optional mouse-to-human ortholog helper `scripts/signatures/cross_species/translate_mouse_signatures_to_human.R` uses `orthogene`, which is included in `envs/renv.lock`. It is not required for the manuscript analyses or smoke tests.
+
 If R reports that the project library has a different `renv` version than the lockfile, align the local project library with:
 
 ```r

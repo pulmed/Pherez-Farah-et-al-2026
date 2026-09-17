@@ -34,16 +34,20 @@ Pherez-Farah-et-al-2026/
     |-- validate_repository_inputs.R
     |-- run_smoke_tests.sh
     |-- utils/
-    |   `-- seurat_io.R
+    |   |-- seurat_io.R
+    |   `-- signature_helpers.R
     |-- build_object/
     |   |-- cellranger_multi.sh
     |   |-- import_cellranger_multi_to_seurat.R
     |   |-- build_analysis_seurat_object.R
-    |   `-- ensure_analysis_layers.R
+    |   |-- ensure_analysis_layers.R
+    |   `-- build_human_gse221553_seurat_object.R
     |-- qc/
     |   |-- general_metrics_overview.R
     |   |-- biotin_thresholds_and_status.R
-    |   `-- scan_contaminants_per_run.sh
+    |   |-- scan_contaminants_per_run.sh
+    |   `-- human/
+    |       `-- global_delta_min5_cell_qc.R
     |-- trajectory/
     |   `-- run_trajectory_analysis.R
     |-- cellchat/
@@ -56,14 +60,24 @@ Pherez-Farah-et-al-2026/
     |   `-- biotin_violins_by_cluster.R
     |-- signatures/
     |   |-- score_isg_module_cell_and_sample.R
+    |   |-- score_cross_presentation_signature.R
     |   |-- interrogate_signatures_cell_level.R
     |   |-- compare_m1_m2_signatures_with_violins.R
-    |   `-- confirm_signature_trends_sample_level.R
+    |   |-- confirm_signature_trends_sample_level.R
+    |   |-- human/
+    |   |   `-- score_monocyte_classical_nonclassical_signatures.R
+    |   `-- cross_species/
+    |       |-- README.md
+    |       |-- translate_mouse_signatures_to_human.R
+    |       |-- mouse_to_human/
+    |       |   `-- score_cluster2_isg_responder_status.R
+    |       `-- human_to_mouse/
+    |           `-- README.md
     `-- pseudobulk/
         `-- run_cluster_pseudobulk_dge.R
 ```
 
-The local `data/`, `output/`, and `original_scripts/` directories are ignored by git. The canonical Seurat RDS is not distributed through GitHub; sequencing/count data should be obtained from GEO and processed locally, or the author-provided object should be placed locally as `data/seurat.rds`. `original_scripts/` is a local provenance archive containing unmodified scripts and result artifacts used during repository cleanup.
+The local `data/`, `output/`, and `original_scripts/` directories are ignored by git. The canonical mouse Seurat RDS is not distributed through GitHub; sequencing/count data should be obtained from GEO and processed locally, or the author-provided mouse object should be placed locally as `data/seurat.rds`. Human validation/signature scripts expect a local human Seurat object at `data/human_seurat.rds` or at the path provided through `HUMAN_SEURAT_RDS`; the human object is also not distributed through GitHub. `original_scripts/` is a local provenance archive containing unmodified scripts and result artifacts used during repository cleanup.
 
 ## Reviewer Quick Start
 
@@ -129,12 +143,29 @@ Raw sequencing data were processed with Cell Ranger 9.0.1. The object-building s
 | Import Cell Ranger output | `scripts/build_object/import_cellranger_multi_to_seurat.R` | `CELLRANGER_MULTI_DIR`, default `output/cellranger_multi` | merged multimodal Seurat object |
 | Build canonical object | `scripts/build_object/build_analysis_seurat_object.R` | `MERGED_SEURAT_RDS`, default `data/merged_cellranger_multi_seurat.rds` | `SEURAT_RDS`, default `data/seurat.rds` |
 | Ensure canonical layers | `scripts/build_object/ensure_analysis_layers.R` | `SEURAT_RDS`, default `data/seurat.rds` | updated object with required normalized layers |
+| Build human GSE221553 object | `scripts/build_object/build_human_gse221553_seurat_object.R` | `GSE221553_DIR`, default `data/human/GSE221553` | `HUMAN_SEURAT_RDS`, default `data/human_seurat.rds` |
 
 The final manuscript object contains manual/iterative annotation not fully captured by these build scripts. For manuscript reproduction, use the provided/supplied annotated object as `data/seurat.rds`.
+
+Human validation scripts use a separate local human object derived from GEO series `GSE221553`. To rebuild the object from local GEO count tables, place the `*-counts.tsv.gz` files under `data/human/GSE221553/` or set `GSE221553_DIR`, then run:
+
+```bash
+make human-gse221553
+```
+
+The builder can also download the `GSE221553` sample-level supplementary count tables from GEO before building:
+
+```bash
+DOWNLOAD_GEO=true make human-gse221553
+```
+
+The output defaults to `data/human_seurat.rds`, or to the path supplied through `HUMAN_SEURAT_RDS`.
 
 ## Analysis Modules And Inputs
 
 Each downstream script reads `SEURAT_RDS` by default and writes under `OUTPUT_DIR` or `output/`.
+
+Human validation scripts read `HUMAN_SEURAT_RDS`, defaulting to `data/human_seurat.rds`, and write under `output/human/`. The uploaded human ISG script read a local object named `human_seurat_rpca_with_patient_subsets.rds`; in this repository that object is represented by the configurable local path `HUMAN_SEURAT_RDS`.
 
 | Analysis | Script | Main input assay/layer | Main outputs |
 | --- | --- | --- | --- |
@@ -149,9 +180,14 @@ Each downstream script reads `SEURAT_RDS` by default and writes under `OUTPUT_DI
 | Biotin CellChat feature panels | `scripts/visualization/biotin_cellchat_feature_panels.R` | `RNA:data`, `ADT:data`, UMAP | biotin/CD8/myeloid feature panels |
 | Biotin violins | `scripts/visualization/biotin_violins_by_cluster.R` | `ADT:data`, cluster/condition metadata | per-cluster Biotin violin PDFs |
 | ISG module scores | `scripts/signatures/score_isg_module_cell_and_sample.R` | `RNA:data` | cell- and sample-level ISG workbooks/plots |
+| Cross-presentation signature | `scripts/signatures/score_cross_presentation_signature.R` | `RNA:data`, cluster/condition/sample metadata | cross-presentation gene checks, ridgeplots, condition stats, sample-level summaries |
+| Mouse-to-human ortholog translation | `scripts/signatures/cross_species/translate_mouse_signatures_to_human.R` | final mouse signature gene vectors | optional ortholog tables for cross-species interpretation |
 | Cell-level signatures | `scripts/signatures/interrogate_signatures_cell_level.R` | `RNA:data` | signature ridgeplots, violin plots, selected heatmaps |
-| M1/M2 signature comparison | `scripts/signatures/compare_m1_m2_signatures_with_violins.R` | configured expression assay, defaults from object | M1/M2 violin plot and stats workbook |
+| M1/M2 signature comparison | `scripts/signatures/compare_m1_m2_signatures_with_violins.R` | `RNA:data`, cluster/sample metadata | final M1/M2 violin plots, paired sample-level plots, and stats workbooks |
 | Sample-level signature trends | `scripts/signatures/confirm_signature_trends_sample_level.R` | `RNA:data` | sample-level signature heatmaps, ridgeplots, summaries |
+| Human global delta QC | `scripts/qc/human/global_delta_min5_cell_qc.R` | human object metadata | T0/T30 cell-count QC workbook and min-5-cell delta tables |
+| Human monocyte signatures | `scripts/signatures/human/score_monocyte_classical_nonclassical_signatures.R` | human `RNA:data`, UMAP, cluster metadata | classical/non-classical monocyte feature, violin, and heatmap plots |
+| Mouse-to-human cluster 2 ISG | `scripts/signatures/cross_species/mouse_to_human/score_cluster2_isg_responder_status.R` | human `RNA:data`, patient/timepoint/response/cluster metadata | cluster 2 responder vs non-responder ISG workbook and plots |
 | Cluster pseudobulk DGE | `scripts/pseudobulk/run_cluster_pseudobulk_dge.R` | `RNA:counts`, `hash.ID`, `final_clusters` | pairwise edgeR CSV/XLSX tables and volcano PDFs |
 
 ## Figure And Result Provenance
@@ -162,7 +198,9 @@ Each downstream script reads `SEURAT_RDS` by default and writes under `OUTPUT_DI
 | Panel 1F | `scripts/cellchat/run_biotin_comparisons.R`, `scripts/cellchat/plot_feature_panels_full.R`, `scripts/cellchat/plot_feature_panels_va2_vb5_ignored.R`, and `scripts/visualization/biotin_cellchat_feature_panels.R` |
 | Panel 1G | `scripts/qc/biotin_thresholds_and_status.R`; outputs include Biotin status summaries and legacy `Delta_Barplot_*` plot names |
 | ISG outputs | `scripts/signatures/score_isg_module_cell_and_sample.R` |
-| M1/M2 outputs | `scripts/signatures/compare_m1_m2_signatures_with_violins.R` and related signature scripts |
+| Cross-presentation outputs | `scripts/signatures/score_cross_presentation_signature.R` |
+| M1/M2 outputs | `scripts/signatures/compare_m1_m2_signatures_with_violins.R` and related signature scripts; final 2026-08-24 gene sets are used |
+| Human response/signature outputs | `scripts/qc/human/global_delta_min5_cell_qc.R`, `scripts/signatures/human/score_monocyte_classical_nonclassical_signatures.R`, and `scripts/signatures/cross_species/mouse_to_human/score_cluster2_isg_responder_status.R` |
 | Pseudobulk DGE tables | `scripts/pseudobulk/run_cluster_pseudobulk_dge.R` |
 | Contamination scan/QC | `scripts/qc/scan_contaminants_per_run.sh` |
 

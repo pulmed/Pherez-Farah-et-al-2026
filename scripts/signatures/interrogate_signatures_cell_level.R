@@ -599,8 +599,8 @@ dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
 # ------------------------------------------------------------------------------
 # canonical signatures (mouse)
 # ------------------------------------------------------------------------------
-M1_genes <- c("Nos2","Il1a","Il1b","Tnf","Il6","Il12b","Ccr7","Cd86","Cxcl9","Cxcl10")
-M2_genes <- c("Arg1","Mrc1","Retnla","Chil3","Il10","Tgfb1","Cd163","Ccl17","Ccl22")
+M1_genes <- c("Nos2","Il1a","Il1b","Tnf","Il6","Cd80","Cd86","Cxcl9","Cxcl10","Stat1")
+M2_genes <- c("Arg1","Mrc1","Retnla","Chil3","Il10","Tgfb1","Cd163","Ccl17","Ccl22","Stat6")
 
 # ------------------------------------------------------------------------------
 # prep identities / subset
@@ -713,8 +713,8 @@ outfile_png <- file.path(outdir, "M1_M2_LAM_violins_lessOverlap_thinMedian_refLi
 # ------------------------------------------------------------------------------
 # signatures
 # ------------------------------------------------------------------------------
-M1_genes <- c("Nos2","Il1a","Il1b","Tnf","Il6","Il12b","Ccr7","Cd86","Cxcl9","Cxcl10")
-M2_genes <- c("Arg1","Mrc1","Retnla","Chil3","Il10","Tgfb1","Cd163","Ccl17","Ccl22")
+M1_genes <- c("Nos2","Il1a","Il1b","Tnf","Il6","Cd80","Cd86","Cxcl9","Cxcl10","Stat1")
+M2_genes <- c("Arg1","Mrc1","Retnla","Chil3","Il10","Tgfb1","Cd163","Ccl17","Ccl22","Stat6")
 LAM_genes <- c("Trem2","Lipa","Lpl","Ctsb","Ctsl","Fabp4","Fabp5","Lgals1","Lgals3","Cd9","Cd36")
 
 # ------------------------------------------------------------------------------
@@ -906,8 +906,8 @@ dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
 # ------------------------------------------------------------------------------
 # signatures
 # ------------------------------------------------------------------------------
-M1_genes <- c("Nos2","Il1a","Il1b","Tnf","Il6","Il12b","Ccr7","Cd86","Cxcl9","Cxcl10")
-M2_genes <- c("Arg1","Mrc1","Retnla","Chil3","Il10","Tgfb1","Cd163","Ccl17","Ccl22")
+M1_genes <- c("Nos2","Il1a","Il1b","Tnf","Il6","Cd80","Cd86","Cxcl9","Cxcl10","Stat1")
+M2_genes <- c("Arg1","Mrc1","Retnla","Chil3","Il10","Tgfb1","Cd163","Ccl17","Ccl22","Stat6")
 
 thr_M1 <- 0
 thr_M2 <- 0
@@ -1622,4 +1622,3 @@ print(p)
 dev.off()
 
 message("Saved: ", normalizePath(outfile, mustWork = FALSE))
-

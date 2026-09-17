@@ -1840,6 +1840,11 @@
       "RoxygenNote": "7.3.1",
       "Author": "Renaud Gaujoux [aut], Cathal Seoighe [aut], Nicolas Sauwen [cre]"
     },
+    "R.cache": {
+      "Package": "R.cache",
+      "Version": "0.17.0",
+      "Source": "Repository"
+    },
     "R.methodsS3": {
       "Package": "R.methodsS3",
       "Version": "1.8.2",
@@ -3667,6 +3672,11 @@
       "NeedsCompilation": "no",
       "Author": "Aaron Lun [cre, aut]",
       "Maintainer": "Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>"
+    },
+    "babelgene": {
+      "Package": "babelgene",
+      "Version": "22.9",
+      "Source": "Repository"
     },
     "backports": {
       "Package": "backports",
@@ -7612,6 +7622,11 @@
       "Maintainer": "Tal Galili <tal.galili@gmail.com>",
       "Repository": "CRAN"
     },
+    "gprofiler2": {
+      "Package": "gprofiler2",
+      "Version": "0.2.4",
+      "Source": "Repository"
+    },
     "graph": {
       "Package": "graph",
       "Version": "1.86.0",
@@ -8261,6 +8276,11 @@
       "Author": "Kirill Müller [aut, cre] (<https://orcid.org/0000-0002-1416-3412>), R Consortium [fnd], RStudio [fnd]",
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "CRAN"
+    },
+    "homologene": {
+      "Package": "homologene",
+      "Version": "1.4.68.19.3.27",
+      "Source": "Repository"
     },
     "htmltools": {
       "Package": "htmltools",
@@ -10022,6 +10042,11 @@
       "biocViews": "OrgDb, AnnotationData, Mus_musculus, mouseLLMappings",
       "NeedsCompilation": "no"
     },
+    "orthogene": {
+      "Package": "orthogene",
+      "Version": "1.14.01",
+      "Source": "Repository"
+    },
     "parallelly": {
       "Package": "parallelly",
       "Version": "1.45.0",
@@ -11322,6 +11347,11 @@
       "Author": "Kevin Ushey [aut, cre] (<https://orcid.org/0000-0003-2880-7407>), Hadley Wickham [aut] (<https://orcid.org/0000-0003-4757-117X>), Posit Software, PBC [cph, fnd]",
       "Maintainer": "Kevin Ushey <kevin@rstudio.com>",
       "Repository": "CRAN"
+    },
+    "repmis": {
+      "Package": "repmis",
+      "Version": "0.5.1",
+      "Source": "Repository"
     },
     "reprex": {
       "Package": "reprex",
