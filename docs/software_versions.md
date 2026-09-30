@@ -2,23 +2,23 @@
 
 This table summarizes the main software and algorithms used by the repository. R package versions are taken from `envs/renv.lock`; Cell Ranger is documented by the object-building scripts and environment notes.
 
-| Component | Version used | Repository use | Suggested citation/reference note |
+| Component | Version used | Repository use | Verified citation/reference note |
 | --- | ---: | --- | --- |
-| Cell Ranger | 9.0.1 | 10x FASTQ processing with `cellranger multi` for GEX, Feature Barcode/hashtag, and V(D)J libraries | 10x Genomics Cell Ranger software/documentation |
+| Cell Ranger | 9.0.1 | 10x FASTQ processing with `cellranger multi` for GEX, Feature Barcode/hashtag, and V(D)J libraries | Software/key-resource entry: 10x Genomics Cell Ranger v9.0.1 documentation/release notes; no Bowtie2/SAMtools citation needed for this workflow |
 | R | 4.5.1 | Main R runtime | R Core Team |
 | Bioconductor | 3.21 | Bioconductor package release | Bioconductor project |
-| Seurat | 5.3.0 | Seurat object construction, normalization, dimensional reduction, clustering, plotting, module scores | Hao et al.; Satija Lab Seurat |
+| Seurat | 5.3.0 | Seurat object construction, normalization, dimensional reduction, clustering, plotting, module scores | Hao et al., Nature Biotechnology 2024, doi:10.1038/s41587-023-01767-y |
 | SeuratObject | 5.1.0 | Seurat object infrastructure | Satija Lab SeuratObject |
-| sctransform | 0.4.2 | SCTransform normalization for the mouse analysis object | Hafemeister and Satija, 2019 |
-| SingleR | 2.10.0 | Human cluster annotation against reference data | Aran et al., 2019 |
-| celldex | 1.18.0 | Human Primary Cell Atlas reference used by SingleR | Bioconductor `celldex`; Human Primary Cell Atlas reference data |
-| CellChat | 2.2.0 | Cell-cell communication analysis on SCT-normalized expression | Jin et al., 2021 |
-| edgeR | 4.6.2 | Sample-level pseudobulk differential expression | edgeR / Robinson, McCarthy, Smyth; Chen et al. |
-| monocle3 | 1.4.26 | Trajectory analysis | Trapnell/Cao monocle3 references |
-| orthogene | 1.14.01 | Mouse-human ortholog translation helpers | `orthogene` package reference |
-| UCell | 2.12.0 | Optional confirmation scoring for selected signatures | Andreatta and Carmona, 2021 |
-| EnhancedVolcano | 1.26.0 | Volcano plot generation | Bioconductor `EnhancedVolcano` |
-| pheatmap | 1.0.13 | Heatmap generation | CRAN `pheatmap` |
+| sctransform | 0.4.2 | SCTransform normalization for the mouse analysis object | Hafemeister and Satija, Genome Biology 2019, doi:10.1186/s13059-019-1874-1; Choudhary and Satija, Genome Biology 2022 |
+| SingleR | 2.10.0 | Human cluster annotation against reference data | Aran et al., Nature Immunology 2019, doi:10.1038/s41590-018-0276-y |
+| celldex | 1.18.0 | Human Primary Cell Atlas reference used by SingleR | `HumanPrimaryCellAtlasData()` uses HPCA from Mabbott et al., BMC Genomics 2013, processed as described in Aran et al., Nature Immunology 2019 |
+| CellChat | 2.2.0 | Cell-cell communication analysis on SCT-normalized expression | CellChat v2 guidance: cite Jin et al., Nature Protocols 2024, doi:10.1038/s41596-024-01045-4; CellChat v1 paper: Jin et al., Nature Communications 2021, doi:10.1038/s41467-021-21246-9 |
+| edgeR | 4.6.2 | Sample-level pseudobulk differential expression | Chen et al., Nucleic Acids Research 2025, doi:10.1093/nar/gkaf018 |
+| monocle3 | 1.4.26 | Trajectory analysis | Trapnell et al., Nature Biotechnology 2014; Qiu et al., Nature Methods 2017; Cao et al., Nature 2019 |
+| orthogene | 1.14.01 | Mouse-human ortholog translation helpers | Schilder and Skene, Bioconductor 2022, doi:10.18129/B9.bioc.orthogene |
+| UCell | 2.12.0 | Optional confirmation scoring for selected signatures | Andreatta and Carmona, Computational and Structural Biotechnology Journal 2021, doi:10.1016/j.csbj.2021.06.043 |
+| EnhancedVolcano | 1.26.0 | Volcano plot generation | Blighe, Rana, and Lewis, Bioconductor 2025, doi:10.18129/B9.bioc.EnhancedVolcano |
+| pheatmap | 1.0.13 | Heatmap generation | Kolde, CRAN 2025, doi:10.32614/CRAN.package.pheatmap |
 | ggplot2 | 3.5.2 | Main plotting system | Wickham, ggplot2 |
 | ggrepel | 0.9.6 | Volcano plot labels | CRAN `ggrepel` |
 | patchwork | 1.3.1 | Multi-panel figure assembly | CRAN `patchwork` |
@@ -26,6 +26,8 @@ This table summarizes the main software and algorithms used by the repository. R
 | tidyr | 1.3.1 | Table reshaping | tidyverse/tidyr |
 | readxl | 1.4.5 | Reading edgeR Excel workbooks for selected volcano panels | CRAN `readxl` |
 | openxlsx | 4.2.8 | Excel workbook outputs | CRAN `openxlsx` |
+
+Citation checks were performed with `utils::citation()` from the project `renv` library where available. For Cell Ranger, use the 10x Genomics software documentation/release notes as a key-resource/software citation rather than Bowtie2 or SAMtools. For CellChat v2.2.0, package metadata returns a manual citation, but the project README for CellChat v2 asks users of CellChat versions `>= 1.5` to cite the 2024 Nature Protocols paper.
 
 Use `renv::restore(lockfile = "envs/renv.lock")` to recreate the recorded publication package set. A local project library can be newer than the lockfile if packages were installed while `RENV_CONFIG_SYNCHRONIZED_CHECK=false`; the lockfile remains the source of truth for the repository.
 
