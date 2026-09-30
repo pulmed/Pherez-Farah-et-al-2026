@@ -3185,6 +3185,11 @@
       "Author": "Hervé Pagès [aut, cre]",
       "Maintainer": "Hervé Pagès <hpages.on.github@gmail.com>"
     },
+    "UCell": {
+      "Package": "UCell",
+      "Version": "2.12.0",
+      "Source": "Repository"
+    },
     "V8": {
       "Package": "V8",
       "Version": "6.0.4",

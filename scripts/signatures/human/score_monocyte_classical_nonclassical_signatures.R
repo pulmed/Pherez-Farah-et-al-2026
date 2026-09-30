@@ -31,7 +31,10 @@ source("scripts/utils/signature_helpers.R")
 # ------------------------------------------------------------------------------
 # SETTINGS
 # ------------------------------------------------------------------------------
-rds_path <- Sys.getenv("HUMAN_SEURAT_RDS", unset = "data/human_seurat.rds")
+rds_path <- Sys.getenv(
+  "HUMAN_ANALYSIS_RDS",
+  unset = Sys.getenv("HUMAN_RPCA_RDS", unset = "data/human_seurat_rpca.rds")
+)
 output_root <- Sys.getenv("OUTPUT_DIR", unset = "output")
 outdir <- make_output_dir(file.path(output_root, "human", "monocyte_classical_nonclassical"))
 

@@ -53,6 +53,7 @@ untreated_label <- "untreated"
 
 # QC thresholds
 min_features_rna <- 200
+max_features_rna <- 6000
 max_percent_mt <- 10
 mitochondrial_gene_pattern <- "^mt-"
 
@@ -62,8 +63,8 @@ rna_normalization_method <- "LogNormalize"
 rna_scale_factor <- 10000
 
 # Dimensionality reduction / clustering
-dims_use <- 1:20
-cluster_resolution <- 0.8
+dims_use <- 1:30
+cluster_resolution <- 1
 
 # Biotin-positive ADT threshold
 biotin_feature_pattern <- "Biotin"
@@ -229,7 +230,9 @@ if (!"percent.mt" %in% colnames(combined@meta.data)) {
 
 combined <- subset(
   combined,
-  subset = nFeature_RNA > min_features_rna & percent.mt < max_percent_mt
+  subset = nFeature_RNA > min_features_rna &
+    nFeature_RNA < max_features_rna &
+    percent.mt < max_percent_mt
 )
 
 message("Cells after QC filtering: ", ncol(combined))

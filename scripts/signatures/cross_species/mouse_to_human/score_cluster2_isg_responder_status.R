@@ -11,6 +11,7 @@
 # Environment: Main analysis environment (conda + renv).
 # Notes:
 # - The all-timepoint cluster-2 comparison is the primary manuscript comparison.
+# - Uses the final 47-gene high-confidence human ISG ortholog set.
 # - This script lives under mouse_to_human because it interrogates an IFN/ISG program
 #   in the human data for comparison with the mouse signature results.
 # ------------------------------------------------------------------------------
@@ -32,7 +33,10 @@ source("scripts/utils/signature_helpers.R")
 # ------------------------------------------------------------------------------
 # SETTINGS
 # ------------------------------------------------------------------------------
-rds_path <- Sys.getenv("HUMAN_SEURAT_RDS", unset = "data/human_seurat.rds")
+rds_path <- Sys.getenv(
+  "HUMAN_ANALYSIS_RDS",
+  unset = Sys.getenv("HUMAN_RPCA_RDS", unset = "data/human_seurat_rpca.rds")
+)
 output_root <- Sys.getenv("OUTPUT_DIR", unset = "output")
 outdir <- make_output_dir(file.path(output_root, "human", "cluster2_isg_responder_status"))
 
@@ -58,14 +62,14 @@ patient_colors <- c(
 )
 
 isg_genes <- c(
-  "ARID5B", "ATP11B", "ATP6V0C", "BACH1", "BATF2", "CD300LF", "CD86",
-  "CEBPB", "CREB5", "CTSS", "CXCL10", "CYRIB", "ENTPD1", "FBXL5",
-  "FCGR1A", "FCGR3B", "FCGR3A", "FGL2", "GBP2", "GNA13", "GPR141",
-  "PYHIN1", "MNDA", "IFI27L2", "IFIT2", "IRGM", "IL10RA", "IRAK2",
-  "IRF7", "LILRB4", "OAS3", "PARP14", "PDE7B", "PIK3AP1", "PKM",
-  "PNP", "PTPRC", "RNF213", "RTP4", "SAMD9L", "SAMHD1", "SDCBP",
-  "SLAMF8", "SLFN13", "SOCS3", "STAT2", "TGFBI", "TGM2", "TNFAIP2",
-  "XAF1", "ZBP1"
+  "ARID5B", "ATP11B", "ATP6V0C", "BACH1", "BATF2", "CD300LF",
+  "CEBPB", "CREB5", "CTSS", "CXCL10", "CYRIB", "ENTPD1",
+  "FCGR1A", "FCGR3B", "FCGR3A", "FGL2", "GBP2", "GNA13",
+  "GPR141", "PYHIN1", "MNDA", "IFI27L2", "IFIT2", "IRGM",
+  "IL10RA", "IRAK2", "IRF7", "LILRB4", "OAS3", "PARP14",
+  "PDE7B", "PIK3AP1", "PNP", "PTPRC", "RNF213", "RTP4",
+  "SAMD9L", "SAMHD1", "SDCBP", "SLAMF8", "SLFN13", "STAT2",
+  "TGFBI", "TGM2", "TNFAIP2", "XAF1", "ZBP1"
 )
 
 if (identical(Sys.getenv("SMOKE_TEST", unset = "0"), "1") && !file.exists(rds_path)) {

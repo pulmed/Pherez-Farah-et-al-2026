@@ -7,7 +7,7 @@
 # Inputs: GEO count tables named *-counts.tsv.gz under GSE221553_DIR, optionally downloaded from GEO.
 # Outputs: Local human Seurat RDS and optional QC plots.
 # Assay/layer input: RNA counts.
-# Dependencies: Seurat, SeuratObject, Matrix, ggplot2.
+# Dependencies: Seurat, SeuratObject, Matrix, ggplot2, dplyr.
 # Environment: Main analysis environment (conda + renv).
 # Notes:
 # - The generated human object is local derived data and is not tracked by git.
@@ -20,6 +20,7 @@ suppressPackageStartupMessages({
   library(SeuratObject)
   library(Matrix)
   library(ggplot2)
+  library(dplyr)
 })
 
 source("scripts/utils/seurat_io.R")
@@ -45,6 +46,47 @@ dims_use <- seq_len(as.integer(Sys.getenv("DIMS", unset = "30")))
 cluster_resolution <- as.numeric(Sys.getenv("CLUSTER_RESOLUTION", unset = "0.5"))
 run_sct <- identical(tolower(Sys.getenv("RUN_SCT", unset = "true")), "true")
 save_qc_plots <- identical(tolower(Sys.getenv("SAVE_QC_PLOTS", unset = "true")), "true")
+responder_patients <- c("P7", "P8", "P13")
+non_responder_patients <- c("P1", "P5", "P6", "P10")
+
+extract_match <- function(x, pattern) {
+  out <- sub(pattern, "\\1", x)
+  ifelse(identical(out, x), NA_character_, out)
+}
+
+harmonize_timepoint <- function(x) {
+  dplyr::case_when(
+    x %in% c("T0", "T01", "T02") ~ "T0",
+    x == "T30" ~ "T30",
+    TRUE ~ x
+  )
+}
+
+harmonize_response <- function(patient_simple) {
+  dplyr::case_when(
+    patient_simple %in% responder_patients ~ "Responder",
+    patient_simple %in% non_responder_patients ~ "Non_responder",
+    TRUE ~ NA_character_
+  )
+}
+
+sample_metadata_from_files <- function(paths) {
+  sample_id <- sub("-counts[.]tsv[.]gz$", "", basename(paths))
+  patient <- extract_match(sample_id, ".*_(patient[0-9]+)_.*$")
+  patient_simple <- sub("^patient", "P", patient)
+  timepoint <- extract_match(sample_id, ".*_(T[0-9]+)_.*$")
+
+  data.frame(
+    sample_id = sample_id,
+    gsm = extract_match(sample_id, "^([^_]+)_.*$"),
+    patient = patient,
+    patient_simple = patient_simple,
+    timepoint = timepoint,
+    timepoint_simple = harmonize_timepoint(timepoint),
+    response_simple = harmonize_response(patient_simple),
+    stringsAsFactors = FALSE
+  )
+}
 
 count_files <- list.files(
   data_dir,
@@ -119,6 +161,11 @@ if (length(count_files) == 0 && download_geo) {
 
 if (identical(Sys.getenv("SMOKE_TEST", unset = "0"), "1")) {
   message("SMOKE_TEST=1: GSE221553 count files found: ", length(count_files))
+  if (length(count_files) > 0) {
+    sample_metadata <- sample_metadata_from_files(count_files)
+    write.csv(sample_metadata, file.path(outdir, "GSE221553_sample_metadata_smoke.csv"), row.names = FALSE)
+    message("SMOKE_TEST=1: wrote sample metadata preview to: ", file.path(outdir, "GSE221553_sample_metadata_smoke.csv"))
+  }
   quit(save = "no", status = 0)
 }
 
@@ -133,11 +180,6 @@ if (length(count_files) == 0) {
 # ------------------------------------------------------------------------------
 # LOAD PER-SAMPLE COUNT TABLES
 # ------------------------------------------------------------------------------
-extract_match <- function(x, pattern) {
-  out <- sub(pattern, "\\1", x)
-  ifelse(identical(out, x), NA_character_, out)
-}
-
 read_sample_object <- function(path) {
   sample_id <- sub("-counts[.]tsv[.]gz$", "", basename(path))
   message("Reading ", sample_id)
@@ -159,8 +201,11 @@ read_sample_object <- function(path) {
 
   object$sample_id <- sample_id
   object$gsm <- extract_match(sample_id, "^([^_]+)_.*$")
-  object$patient <- extract_match(sample_id, ".*_(patient[0-9]+)-.*$")
-  object$timepoint <- extract_match(sample_id, ".*-(T[0-9]+)-.*$")
+  object$patient <- extract_match(sample_id, ".*_(patient[0-9]+)_.*$")
+  object$patient_simple <- sub("^patient", "P", object$patient)
+  object$timepoint <- extract_match(sample_id, ".*_(T[0-9]+)_.*$")
+  object$timepoint_simple <- harmonize_timepoint(object$timepoint)
+  object$response_simple <- harmonize_response(object$patient_simple)
   object
 }
 
@@ -245,5 +290,11 @@ summary <- data.frame(
   value = c(ncol(obj), nrow(obj), length(sample_objs), output_rds)
 )
 write.csv(summary, file.path(outdir, "GSE221553_build_summary.csv"), row.names = FALSE)
+
+sample_metadata <- obj@meta.data |>
+  as.data.frame() |>
+  dplyr::distinct(sample_id, gsm, patient, patient_simple, timepoint, timepoint_simple, response_simple) |>
+  dplyr::arrange(patient_simple, timepoint, gsm)
+write.csv(sample_metadata, file.path(outdir, "GSE221553_sample_metadata.csv"), row.names = FALSE)
 
 message("Done. Human object written to: ", output_rds)
